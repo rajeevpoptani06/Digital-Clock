@@ -28,5 +28,3 @@ https://rajeevpoptani06.github.io/urban-clock/
 - CSS
 - JavaScript
 
-
-Made by Raj
