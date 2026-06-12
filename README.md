@@ -19,10 +19,6 @@ A premium Digital Clock built with HTML, CSS and JavaScript.
 4. Clock will open in your browser
 
 
-## Live Demo
-https://rajeevpoptani06.github.io/digital-clock/
-
-
 ## Built With
 - HTML
 - CSS
