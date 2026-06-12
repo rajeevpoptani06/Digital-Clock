@@ -1,0 +1,572 @@
+/* ═══════════════════════════════════════════════════════════════
+   UrbanClock — Premium Dark UI  |  style.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. DESIGN TOKENS ─────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --bg:          #080810;
+  --surface:     #0e0e1a;
+  --surface-2:   #13131f;
+  --border:      rgba(255,255,255,0.06);
+  --border-glow: rgba(120,80,255,0.35);
+
+  /* Neon accent */
+  --accent:      #7c3aff;
+  --accent-soft: #a470ff;
+  --accent-glow: rgba(124,58,255,0.55);
+  --neon-cyan:   #00e5ff;
+  --neon-green:  #00ff88;
+  --neon-amber:  #ffaa00;
+
+  /* Text */
+  --text-primary:   #f0f0ff;
+  --text-secondary: rgba(240,240,255,0.45);
+  --text-muted:     rgba(240,240,255,0.25);
+
+  /* Sizes */
+  --time-size:   clamp(3.5rem, 13vw, 9rem);
+  --radius-card: 28px;
+  --radius-sm:   12px;
+  --transition:  0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:    0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── 2. RESET & BASE ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; scroll-behavior: smooth; }
+
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── 3. AMBIENT PARTICLES CANVAS ─────────────────────────────── */
+.particles-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+}
+
+/* ── 4. STATUS BAR (top-right) ────────────────────────────────── */
+.status-bar {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.status-widget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 5px 12px 5px 9px;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  backdrop-filter: blur(10px);
+  transition: border-color 0.3s;
+}
+
+.status-widget:hover { border-color: var(--border-glow); }
+
+.status-icon {
+  font-size: 0.55rem;
+  line-height: 1;
+}
+
+/* Network states */
+#networkWidget.online  .status-icon { color: var(--neon-green); }
+#networkWidget.offline .status-icon { color: #ff4d6d; }
+#networkWidget.online  { border-color: rgba(0,255,136,0.2); }
+
+/* Battery */
+.battery-icon svg { display: block; }
+
+#batteryWidget.high   { color: var(--neon-green); }
+#batteryWidget.medium { color: var(--neon-amber); }
+#batteryWidget.low    { color: #ff4d6d; }
+#batteryWidget.high   #batteryFill { fill: var(--neon-green); }
+#batteryWidget.medium #batteryFill { fill: var(--neon-amber); }
+#batteryWidget.low    #batteryFill { fill: #ff4d6d; }
+
+/* ── 5. MAIN STAGE ────────────────────────────────────────────── */
+.clock-stage {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+/* ── 6. CLOCK CARD ────────────────────────────────────────────── */
+.clock-card {
+  width: min(96vw, 720px);
+  max-width: 720px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: clamp(32px, 6vw, 56px) clamp(32px, 6vw, 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 40px 80px rgba(0,0,0,0.7),
+    0 0 60px rgba(124,58,255,0.08);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.clock-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,255,0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.clock-card:hover {
+  transform: translateY(-4px) scale(1.005);
+  box-shadow:
+    0 0 0 1px rgba(124,58,255,0.18),
+    0 50px 100px rgba(0,0,0,0.75),
+    0 0 90px rgba(124,58,255,0.18);
+}
+
+/* ── 7. GREETING ─────────────────────────────────────────────── */
+.greeting {
+  font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  margin-bottom: 18px;
+  opacity: 0.9;
+  transition: opacity var(--ease-out), color var(--ease-out);
+}
+
+/* ── 8. TIME DISPLAY ─────────────────────────────────────────── */
+.time-display {
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 1vw, 8px);
+  position: relative;
+  user-select: none;
+  margin-bottom: 4px;
+  flex-wrap: nowrap;
+  width: 100%;
+  justify-content: center;
+}
+
+.time-segment {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--time-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 0 30px rgba(240,240,255,0.4),
+    0 0 80px rgba(124,58,255,0.25);
+  display: inline-block;
+  min-width: 2ch;
+  text-align: center;
+  transition: text-shadow 0.5s ease;
+}
+
+/* Seconds get a subtly different glow */
+#seconds {
+  color: var(--accent-soft);
+  text-shadow:
+    0 0 20px rgba(164,112,255,0.6),
+    0 0 60px rgba(124,58,255,0.35);
+}
+
+/* Seconds flip animation */
+#seconds.tick {
+  animation: secondTick 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes secondTick {
+  0%   { transform: translateY(-6px); opacity: 0.3; }
+  100% { transform: translateY(0);    opacity: 1;   }
+}
+
+.time-colon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: calc(var(--time-size) * 0.75);
+  font-weight: 300;
+  color: var(--text-muted);
+  margin-bottom: 0.12em;
+  animation: colonBlink 1s step-end infinite;
+}
+
+@keyframes colonBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.ampm-badge {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(0.65rem, 1.6vw, 0.9rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent-soft);
+  background: rgba(124,58,255,0.15);
+  border: 1px solid rgba(124,58,255,0.3);
+  border-radius: 6px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-top: clamp(10px, 1.8vw, 18px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.ampm-badge.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+/* ── 9. DATE DISPLAY ─────────────────────────────────────────── */
+.date-display {
+  font-size: clamp(0.78rem, 2.2vw, 0.92rem);
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  margin-top: 12px;
+  margin-bottom: 28px;
+}
+
+/* ── 10. FORMAT TOGGLE ───────────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.toggle-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.toggle-switch { cursor: pointer; display: block; }
+.toggle-switch input { display: none; }
+
+.toggle-track {
+  display: block;
+  width: 48px;
+  height: 26px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  position: relative;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+}
+
+.toggle-switch input:checked ~ .toggle-track {
+  background: rgba(124,58,255,0.25);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(124,58,255,0.4);
+}
+
+.toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+  transform: translateX(22px);
+  background: var(--accent);
+}
+
+/* ── 11. POMODORO TRIGGER BUTTON ─────────────────────────────── */
+.pomo-trigger-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.pomo-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 20px;
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.pomo-trigger-btn:hover,
+.pomo-trigger-btn[aria-expanded="true"] {
+  background: rgba(124,58,255,0.1);
+  border-color: var(--border-glow);
+  color: var(--accent-soft);
+  box-shadow: 0 0 18px rgba(124,58,255,0.2);
+}
+
+.pomo-icon { flex-shrink: 0; }
+
+.pomo-arrow {
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform var(--ease-out);
+  font-size: 0.85rem;
+}
+.pomo-trigger-btn[aria-expanded="true"] .pomo-arrow { transform: rotate(180deg); }
+
+/* ── 12. POMODORO PANEL ──────────────────────────────────────── */
+.pomo-panel {
+  width: 100%;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height var(--ease-out), opacity 0.35s ease, margin var(--ease-out);
+  margin-top: 0;
+}
+
+.pomo-panel.open {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 28px;
+}
+
+.pomo-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* Ring Timer */
+.pomo-timer-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-svg { transform: rotate(-90deg); }
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.05);
+  stroke-width: 5;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.ring-progress.break-mode { stroke: var(--neon-cyan); filter: drop-shadow(0 0 6px rgba(0,229,255,0.5)); }
+
+.pomo-time-inner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pomo-time-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 20px rgba(124,58,255,0.4);
+}
+
+.pomo-phase-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Session count */
+.pomo-session-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.pomo-sessions-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+}
+
+/* Pomo control buttons */
+.pomo-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pomo-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 24px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.pomo-btn:active { transform: scale(0.96); }
+
+.pomo-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pomo-start {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(124,58,255,0.4);
+}
+.pomo-start:hover:not(:disabled) {
+  box-shadow: 0 6px 28px rgba(124,58,255,0.6);
+  transform: translateY(-1px);
+}
+
+.pomo-pause {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.pomo-pause:hover:not(:disabled) {
+  background: rgba(255,255,255,0.12);
+  color: var(--text-primary);
+}
+
+.pomo-reset {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.pomo-reset:hover:not(:disabled) {
+  color: #ff4d6d;
+  border-color: rgba(255,77,109,0.4);
+}
+
+/* Mode pills */
+.pomo-mode-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pomo-pill {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 5px 14px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.pomo-pill:hover {
+  background: rgba(124,58,255,0.1);
+  color: var(--text-secondary);
+}
+
+.pomo-pill.active {
+  background: rgba(124,58,255,0.18);
+  border-color: var(--accent);
+  color: var(--accent-soft);
+  box-shadow: 0 0 10px rgba(124,58,255,0.25);
+}
+
+/* ── 13. RESPONSIVE TWEAKS ───────────────────────────────────── */
+@media (max-width: 480px) {
+  .status-bar {
+    top: 14px;
+    right: 14px;
+    gap: 8px;
+  }
+  .status-widget { padding: 4px 9px 4px 7px; font-size: 0.66rem; }
+
+  .clock-card { border-radius: 20px; }
+
+  .time-segment { letter-spacing: -0.06em; }
+  .time-colon { margin-bottom: 0.1em; }
+}
+
+@media (max-width: 360px) {
+  .pomo-controls { gap: 7px; }
+  .pomo-btn { padding: 8px 16px; font-size: 0.76rem; }
+}
+
+/* ── 14. SCROLLBAR (if panel expands on small screens) ───────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
