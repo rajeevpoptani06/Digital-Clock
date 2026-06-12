@@ -20,7 +20,7 @@ A premium Digital Clock built with HTML, CSS and JavaScript.
 
 
 ## Live Demo
-https://rajeevpoptani06.github.io/urban-clock/
+https://rajeevpoptani06.github.io/digital-clock/
 
 
 ## Built With
